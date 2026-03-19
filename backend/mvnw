@@ -1,0 +1,38 @@
+#!/bin/sh
+# Maven Wrapper script for Unix-like systems
+# Downloads and caches Maven if not already present
+
+set -e
+
+MAVEN_WRAPPER_PROPERTIES=".mvn/wrapper/maven-wrapper.properties"
+MAVEN_HOME="${HOME}/.m2/wrapper/dists"
+
+if [ ! -f "$MAVEN_WRAPPER_PROPERTIES" ]; then
+    echo "Error: Could not find $MAVEN_WRAPPER_PROPERTIES" >&2
+    exit 1
+fi
+
+distributionUrl=$(grep "distributionUrl" "$MAVEN_WRAPPER_PROPERTIES" | cut -d'=' -f2-)
+version=$(echo "$distributionUrl" | grep -o 'apache-maven-[0-9.]*' | head -1 | sed 's/apache-maven-//')
+MAVEN_DIST_DIR="${MAVEN_HOME}/apache-maven-${version}"
+
+if [ ! -d "$MAVEN_DIST_DIR" ]; then
+    echo "Downloading Maven ${version}..."
+    mkdir -p "$MAVEN_HOME"
+    TMP_FILE=$(mktemp)
+    if command -v curl > /dev/null 2>&1; then
+        curl -fsSL "$distributionUrl" -o "$TMP_FILE"
+    elif command -v wget > /dev/null 2>&1; then
+        wget -q "$distributionUrl" -O "$TMP_FILE"
+    else
+        echo "Error: curl or wget required" >&2
+        exit 1
+    fi
+    unzip -q -d "$MAVEN_HOME" "$TMP_FILE"
+    rm -f "$TMP_FILE"
+    echo "Maven ${version} installed to ${MAVEN_DIST_DIR}"
+fi
+
+export MAVEN_HOME="$MAVEN_DIST_DIR"
+export PATH="${MAVEN_HOME}/bin:${PATH}"
+exec mvn "$@"

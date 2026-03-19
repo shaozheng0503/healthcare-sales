@@ -1,0 +1,45 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: healthcare-sales
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/healthcare_sales?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: root   # 改成自己的MySQL密码
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      validation-query: SELECT 1
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.healthcare.sales.entity
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# JWT 配置
+jwt:
+  secret: healthcare-sales-secret-key-2026-jwt-token-must-be-256-bit
+  expire: 86400000   # 24小时，毫秒
+
+logging:
+  level:
+    com.healthcare.sales.mapper: debug

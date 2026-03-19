@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.healthcare.sales.mapper.OrdersMapper">
+
+    <!-- 后台订单分页（含用户名） -->
+    <select id="selectAdminPage" resultType="map">
+        SELECT o.id, o.order_no AS orderNo, o.user_id AS userId,
+               o.total_amount AS totalAmount, o.pay_amount AS payAmount,
+               o.status, o.pay_type AS payType, o.pay_time AS payTime,
+               o.receiver_name AS receiverName, o.receiver_phone AS receiverPhone,
+               o.receiver_address AS receiverAddress, o.remark,
+               o.created_at AS createdAt, o.updated_at AS updatedAt,
+               u.username, u.real_name AS realName
+        FROM orders o
+        LEFT JOIN user u ON o.user_id = u.id
+        WHERE 1=1
+        <if test="orderNo != null and orderNo != ''">
+            AND o.order_no LIKE CONCAT('%', #{orderNo}, '%')
+        </if>
+        <if test="status != null">
+            AND o.status = #{status}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND DATE(o.created_at) >= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(o.created_at) &lt;= #{endDate}
+        </if>
+        ORDER BY o.created_at DESC
+    </select>
+
+    <!-- 销售趋势（按天） -->
+    <select id="selectSalesTrend" resultType="map">
+        SELECT
+            DATE(created_at) AS `date`,
+            COUNT(id)        AS `orders`,
+            IFNULL(SUM(pay_amount), 0) AS `sales`
+        FROM orders
+        WHERE status IN (1, 2, 3)
+        <if test="days != null">
+            AND created_at >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY)
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND DATE(created_at) >= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(created_at) &lt;= #{endDate}
+        </if>
+        GROUP BY DATE(created_at)
+        ORDER BY DATE(created_at) ASC
+    </select>
+
+    <!-- 各分类销售额占比 -->
+    <select id="selectCategoryRatio" resultType="map">
+        SELECT c.name, ROUND(SUM(oi.total_price), 2) AS value
+        FROM order_item oi
+        LEFT JOIN product p ON oi.product_id = p.id
+        LEFT JOIN category c ON p.category_id = c.id
+        LEFT JOIN orders o ON oi.order_no = o.order_no
+        WHERE o.status IN (1, 2, 3)
+          AND c.parent_id != 0
+        GROUP BY c.id, c.name
+        ORDER BY value DESC
+        LIMIT 8
+    </select>
+
+    <!-- 订单状态分布 -->
+    <select id="selectOrderStatusDist" resultType="map">
+        SELECT
+            CASE status
+                WHEN 0 THEN '待支付'
+                WHEN 1 THEN '已支付'
+                WHEN 2 THEN '已发货'
+                WHEN 3 THEN '已完成'
+                WHEN 4 THEN '已取消'
+            END AS name,
+            COUNT(*) AS value
+        FROM orders
+        GROUP BY status
+    </select>
+
+</mapper>

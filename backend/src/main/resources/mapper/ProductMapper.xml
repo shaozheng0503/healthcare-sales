@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.healthcare.sales.mapper.ProductMapper">
+
+    <!-- 带分类名的商品分页（支持排序） -->
+    <select id="selectPageWithCategory" resultType="map">
+        SELECT p.id, p.category_id AS categoryId, p.name, p.description,
+               p.price, p.original_price AS originalPrice,
+               p.stock, p.stock_warning AS stockWarning,
+               p.image_url AS imageUrl, p.images,
+               p.sales_count AS salesCount, p.status,
+               p.created_by AS createdBy, p.created_at AS createdAt,
+               p.updated_at AS updatedAt,
+               c.name AS categoryName
+        FROM product p
+        LEFT JOIN category c ON p.category_id = c.id
+        WHERE 1=1
+        <if test="name != null and name != ''">
+            AND p.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="categoryId != null">
+            AND p.category_id = #{categoryId}
+        </if>
+        <if test="status != null">
+            AND p.status = #{status}
+        </if>
+        <if test="stockWarnOnly != null and stockWarnOnly">
+            AND p.stock &lt;= p.stock_warning
+        </if>
+        <choose>
+            <when test="orderBy == 'price' and orderDir == 'asc'">
+                ORDER BY p.price ASC
+            </when>
+            <when test="orderBy == 'price' and orderDir == 'desc'">
+                ORDER BY p.price DESC
+            </when>
+            <when test="orderBy == 'sales_count' and orderDir == 'desc'">
+                ORDER BY p.sales_count DESC
+            </when>
+            <otherwise>
+                ORDER BY p.created_at DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 热销商品 Top N -->
+    <select id="selectHotProducts" resultType="map">
+        SELECT p.id, p.name, p.price, p.image_url AS imageUrl,
+               p.sales_count AS salesCount,
+               ROUND(p.price * p.sales_count, 2) AS revenue
+        FROM product p
+        WHERE p.status = 1
+        ORDER BY p.sales_count DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>
