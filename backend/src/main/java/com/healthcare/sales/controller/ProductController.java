@@ -73,12 +73,19 @@ public class ProductController {
     @PostMapping("/stock/adjust")
     public Result<Void> adjustStock(@RequestBody Map<String, Object> body) {
         checkBackend();
-        Long    productId = Long.valueOf(body.get("productId").toString());
-        Integer type      = Integer.valueOf(body.get("type").toString());
-        Integer changeQty = Integer.valueOf(body.get("changeQuantity").toString());
-        String  remark    = (String)  body.getOrDefault("remark", "");
-        productService.adjustStock(productId, type, changeQty, remark);
-        return Result.success();
+        if (body.get("productId") == null || body.get("type") == null || body.get("changeQuantity") == null) {
+            throw BusinessException.of("缺少必要参数");
+        }
+        try {
+            Long    productId = Long.valueOf(body.get("productId").toString());
+            Integer type      = Integer.valueOf(body.get("type").toString());
+            Integer changeQty = Integer.valueOf(body.get("changeQuantity").toString());
+            String  remark    = body.getOrDefault("remark", "").toString();
+            productService.adjustStock(productId, type, changeQty, remark);
+            return Result.success();
+        } catch (NumberFormatException e) {
+            throw BusinessException.of("参数格式错误");
+        }
     }
 
     /** 库存变动日志 */

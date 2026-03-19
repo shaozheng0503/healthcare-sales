@@ -87,19 +87,21 @@ public class ProductServiceImpl {
         Product product = productMapper.selectById(productId);
         if (product == null) throw BusinessException.of("商品不存在");
 
+        // 手动调整仅允许 type=1（入库）和 type=3（手动调整），type=2（出库）和 type=4（取消回滚）由系统自动处理
+        if (type != 1 && type != 3) {
+            throw BusinessException.of("不支持的库存调整类型");
+        }
+
         int before    = product.getStock();
         int after;
         if (type == 1) {
             // 入库（增加）
+            if (changeQty <= 0) throw BusinessException.of("入库数量必须大于0");
             after = before + changeQty;
-        } else if (type == 3) {
+        } else {
             // 手动调整：changeQty 可正可负（正=增加，负=减少）
             after = before + changeQty;
             if (after < 0) throw BusinessException.of("调整后库存不能小于0");
-        } else {
-            // 出库（减少）
-            after = before - changeQty;
-            if (after < 0) throw BusinessException.of("库存不足");
         }
 
         Product update = new Product();

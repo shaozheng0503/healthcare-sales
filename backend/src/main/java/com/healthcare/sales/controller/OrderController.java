@@ -50,12 +50,18 @@ public class OrderController {
     /** 订单详情 */
     @GetMapping("/{orderNo}")
     public Result<Map<String, Object>> detail(@PathVariable String orderNo) {
-        return Result.success(orderService.detail(orderNo));
+        Map<String, Object> detail = orderService.detail(orderNo);
+        // 非后台用户只能查看自己的订单
+        if (!UserContext.isBackend()) {
+            orderService.checkOrderOwner(orderNo);
+        }
+        return Result.success(detail);
     }
 
     /** 支付（模拟） */
     @PostMapping("/{orderNo}/pay")
     public Result<Void> pay(@PathVariable String orderNo) {
+        orderService.checkOrderOwner(orderNo);
         orderService.pay(orderNo);
         return Result.success();
     }
@@ -71,6 +77,7 @@ public class OrderController {
     /** 确认收货 */
     @PostMapping("/{orderNo}/complete")
     public Result<Void> complete(@PathVariable String orderNo) {
+        orderService.checkOrderOwner(orderNo);
         orderService.complete(orderNo);
         return Result.success();
     }
@@ -78,6 +85,10 @@ public class OrderController {
     /** 取消订单 */
     @PostMapping("/{orderNo}/cancel")
     public Result<Void> cancel(@PathVariable String orderNo) {
+        // 消费者只能取消自己的订单，后台可取消任意订单
+        if (!UserContext.isBackend()) {
+            orderService.checkOrderOwner(orderNo);
+        }
         orderService.cancel(orderNo);
         return Result.success();
     }

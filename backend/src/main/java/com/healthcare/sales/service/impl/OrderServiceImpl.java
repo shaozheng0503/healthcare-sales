@@ -230,6 +230,14 @@ public class OrderServiceImpl {
         return result;
     }
 
+    /** 校验当前用户是否为订单的拥有者 */
+    public void checkOrderOwner(String orderNo) {
+        Orders orders = getOrderByNo(orderNo);
+        if (!orders.getUserId().equals(UserContext.getUserId())) {
+            throw BusinessException.of("无权操作此订单");
+        }
+    }
+
     private Orders getOrderByNo(String orderNo) {
         Orders orders = ordersMapper.selectOne(
                 new LambdaQueryWrapper<Orders>().eq(Orders::getOrderNo, orderNo));

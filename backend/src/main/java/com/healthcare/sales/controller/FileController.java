@@ -37,7 +37,8 @@ public class FileController {
 
         // 校验文件类型
         String originalName = file.getOriginalFilename();
-        String suffix = originalName != null ? originalName.substring(originalName.lastIndexOf(".")).toLowerCase() : "";
+        int dotIndex = (originalName != null) ? originalName.lastIndexOf(".") : -1;
+        String suffix = (dotIndex >= 0) ? originalName.substring(dotIndex).toLowerCase() : "";
         if (!".jpg".equals(suffix) && !".jpeg".equals(suffix) && !".png".equals(suffix)
                 && !".gif".equals(suffix) && !".webp".equals(suffix)) {
             throw BusinessException.of("仅支持 jpg/png/gif/webp 格式图片");

@@ -114,8 +114,8 @@ app.get('/api/cart/list', (req, res) => res.json(ok([
 ])))
 app.post('/api/cart/add',    (req, res) => res.json(ok(null)))
 app.put('/api/cart/update',  (req, res) => res.json(ok(null)))
-app.delete('/api/cart/:id',  (req, res) => res.json(ok(null)))
 app.delete('/api/cart/clear',(req, res) => res.json(ok(null)))
+app.delete('/api/cart/:id',  (req, res) => res.json(ok(null)))
 
 // ─── 订单 ─────────────────────────────────────────────────
 const orders = [

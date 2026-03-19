@@ -79,9 +79,11 @@ public class StatisticsController {
             }
         } else {
             for (Map<String, Object> row : trend) {
-                dates.add(row.get("date").toString());
-                sales.add(new BigDecimal(row.get("sales").toString()));
-                orders.add(Long.valueOf(row.get("orders").toString()));
+                dates.add(row.get("date") != null ? row.get("date").toString() : "");
+                Object salesVal = row.get("sales");
+                sales.add(salesVal != null ? new BigDecimal(salesVal.toString()) : BigDecimal.ZERO);
+                Object ordersVal = row.get("orders");
+                orders.add(ordersVal != null ? Long.valueOf(ordersVal.toString()) : 0L);
             }
         }
 
