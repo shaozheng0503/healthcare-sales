@@ -91,9 +91,9 @@ const hotProducts   = ref([])
 const articles      = ref([])
 
 const banners = [
-  { id: 1, title: '精选保健好物', desc: '为家人的健康，用心挑选每一款产品', color: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)' },
-  { id: 2, title: '中药养生系列', desc: '传统中医智慧，守护现代健康生活',    color: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%)' },
-  { id: 3, title: '健康科普知识', desc: '权威健康资讯，助力科学保健',         color: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%)' }
+  { id: 1, title: '精选保健用品', desc: '理疗器械、健康监测、康复辅助，守护全家健康', color: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)' },
+  { id: 2, title: '中医保健系列', desc: '拔罐、刮痧、艾灸贴，传统中医智慧触手可及',  color: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fde68a 100%)' },
+  { id: 3, title: '健康科普知识', desc: '正确使用保健用品，科学呵护身体健康',         color: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%)' }
 ]
 
 onMounted(async () => {
